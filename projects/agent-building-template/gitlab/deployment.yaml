@@ -1,0 +1,41 @@
+# Used for registry credentials/pod identity
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: agent-serviceaccount
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agent
+  labels:
+    app: agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent
+  template:
+    metadata:
+      labels:
+        app: agent
+    spec:
+      containers:
+        - name: agent
+          image: $IMAGE_NAME
+          ports:
+            - containerPort: 8000
+      serviceAccountName: agent-serviceaccount
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agent
+spec:
+  ports:
+    - port: 8000
+      targetPort: 8000
+      protocol: TCP
+      name: http
+  selector:
+    app: agent
